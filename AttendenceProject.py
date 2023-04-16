@@ -30,7 +30,7 @@ def findEncodings(images):
         encodeList.append(encode)   # storing the encoding into the list
     return(encodeList)
 
-def markAttendance(name):
+def markAttendance(name,regisNo):
     with open('attendence.csv','r+') as f: # 'with ensures file is closed properly after block is executed
     # open returns a file object, and it need to be closed after execution using close(), hence we used with to close it automatically
         myDataList = f.readlines()
@@ -41,7 +41,7 @@ def markAttendance(name):
         if name not in nameList:
             now = datetime.now()  #returns date time object needs to be converted into string
             dtString = now.strftime('%H:%M:%S') # string format time
-            f.writelines(f'\n{name},{dtString}')
+            f.writelines(f'\n{name},{regisNo},{dtString}')
 
 
 
@@ -67,14 +67,27 @@ while True:
         matchIndex = np.argmin(faceDis) # returns index of minimum value in array
 
         if matches[matchIndex]:
-            name = classNames[matchIndex].upper()
-            #print(name)
+            #name = classNames[matchIndex].upper()
+            stuDetail = classNames[matchIndex].split('_')
+            name = stuDetail[0].upper()
+            if len(stuDetail)>1 :
+                  regisNo = stuDetail[1]
+            else:
+                regisNo = 'Registration Number Not Exist'
+            #print(regisNo)
+
             y1,x2,y2,x1 = faceLoc
             y1,x2,y2,x1 = y1*4,x2*4,y2*4,x1*4 #as location is calculate in scaled downed image
             cv2.rectangle(img,(x1,y1),(x2,y2),(0,255,0),2)
             cv2.rectangle(img,(x1,y2-35),(x2,y2),(0,255,0),cv2.FILLED)
             cv2.putText(img,name,(x1+6,y2-6),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-            markAttendance(name)
+            markAttendance(name,regisNo)
+        else:
+            y1,x2,y2,x1 = faceLoc
+            y1,x2,y2,x1 = y1*4,x2*4,y2*4,x1*4 #as location is calculate in scaled downed image
+            cv2.rectangle(img,(x1,y1),(x2,y2),(0,0,255),2)
+            cv2.rectangle(img,(x1,y2-35),(x2,y2),(0,0,255),cv2.FILLED)
+            cv2.putText(img,'Intruder',(x1+6,y2-6),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
 
     cv2.imshow('webcam',img)
     cv2.waitKey(1)

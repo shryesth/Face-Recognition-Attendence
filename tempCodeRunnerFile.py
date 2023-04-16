@@ -1,1 +1,1 @@
-int(results,faceDis)
+ if name not in nameList:
